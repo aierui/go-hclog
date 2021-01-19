@@ -1,0 +1,290 @@
+@startuml
+namespace hclog {
+    class ExcludeByMessage << (S,Aquamarine) >> {
+        - messages <font color=blue>map</font>[string]<font color=blue>struct</font>{}
+
+        + Add(msg string) 
+        + Exclude(level Level, msg string, args ...<font color=blue>interface</font>{}) bool
+
+    }
+    class ExcludeByPrefix << (S,Aquamarine) >> {
+        + Exclude(level Level, msg string, args ...<font color=blue>interface</font>{}) bool
+
+    }
+    class ExcludeByRegexp << (S,Aquamarine) >> {
+        + Regexp *regexp.Regexp
+
+        + Exclude(level Level, msg string, args ...<font color=blue>interface</font>{}) bool
+
+    }
+    class ExcludeFuncs << (S,Aquamarine) >> {
+        + Exclude(level Level, msg string, args ...<font color=blue>interface</font>{}) bool
+
+    }
+    interface Flushable  {
+        + Flush() error
+
+    }
+    interface InterceptLogger  {
+        + RegisterSink(sink SinkAdapter) 
+        + DeregisterSink(sink SinkAdapter) 
+        + NamedIntercept(name string) InterceptLogger
+        + ResetNamedIntercept(name string) InterceptLogger
+        + StandardLoggerIntercept(opts *StandardLoggerOptions) *log.Logger
+        + StandardWriterIntercept(opts *StandardLoggerOptions) io.Writer
+
+    }
+    class Level << (S,Aquamarine) >> {
+        + String() string
+
+    }
+    interface LevelWriter  {
+        + LevelWrite(level Level, p []byte) (int, error)
+
+    }
+    class LeveledWriter << (S,Aquamarine) >> {
+        - standard io.Writer
+        - overrides <font color=blue>map</font>[Level]io.Writer
+
+        + Write(p []byte) (int, error)
+        + LevelWrite(level Level, p []byte) (int, error)
+
+    }
+    interface Locker  {
+        + Lock() 
+        + Unlock() 
+
+    }
+    interface Logger  {
+        + Log(level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        + Trace(msg string, args ...<font color=blue>interface</font>{}) 
+        + Debug(msg string, args ...<font color=blue>interface</font>{}) 
+        + Info(msg string, args ...<font color=blue>interface</font>{}) 
+        + Warn(msg string, args ...<font color=blue>interface</font>{}) 
+        + Error(msg string, args ...<font color=blue>interface</font>{}) 
+        + IsTrace() bool
+        + IsDebug() bool
+        + IsInfo() bool
+        + IsWarn() bool
+        + IsError() bool
+        + ImpliedArgs() []<font color=blue>interface</font>{}
+        + With(args ...<font color=blue>interface</font>{}) Logger
+        + Name() string
+        + Named(name string) Logger
+        + ResetNamed(name string) Logger
+        + SetLevel(level Level) 
+        + StandardLogger(opts *StandardLoggerOptions) *log.Logger
+        + StandardWriter(opts *StandardLoggerOptions) io.Writer
+
+    }
+    class LoggerOptions << (S,Aquamarine) >> {
+        + Name string
+        + Level Level
+        + Output io.Writer
+        + Mutex Locker
+        + JSONFormat bool
+        + IncludeLocation bool
+        + TimeFormat string
+        + DisableTime bool
+        + Color ColorOption
+        + Exclude <font color=blue>func</font>(Level, string, ...<font color=blue>interface</font>{}) bool
+        + IndependentLevels bool
+
+    }
+    class NoopLocker << (S,Aquamarine) >> {
+        + Lock() 
+        + Unlock() 
+
+    }
+    interface OutputResettable  {
+        + ResetOutput(opts *LoggerOptions) error
+        + ResetOutputWithFlush(opts *LoggerOptions, flushable Flushable) error
+
+    }
+    interface SinkAdapter  {
+        + Accept(name string, level Level, msg string, args ...<font color=blue>interface</font>{}) 
+
+    }
+    class StandardLoggerOptions << (S,Aquamarine) >> {
+        + InferLevels bool
+        + ForceLevel Level
+
+    }
+    class contextKeyType << (S,Aquamarine) >> {
+    }
+    class hclog.Binary << (T, #FF7700) >>  {
+    }
+    class hclog.CapturedStacktrace << (T, #FF7700) >>  {
+    }
+    class hclog.ColorOption << (T, #FF7700) >>  {
+    }
+    class hclog.ExcludeByPrefix << (T, #FF7700) >>  {
+    }
+    class hclog.ExcludeFuncs << (T, #FF7700) >>  {
+    }
+    class hclog.Format << (T, #FF7700) >>  {
+    }
+    class hclog.Hex << (T, #FF7700) >>  {
+    }
+    class hclog.Level << (T, #FF7700) >>  {
+    }
+    class hclog.Octal << (T, #FF7700) >>  {
+    }
+    class intLogger << (S,Aquamarine) >> {
+        - json bool
+        - callerOffset int
+        - name string
+        - timeFormat string
+        - disableTime bool
+        - mutex Locker
+        - writer *writer
+        - level *int32
+        - implied []<font color=blue>interface</font>{}
+        - exclude <font color=blue>func</font>(Level, string, ...<font color=blue>interface</font>{}) bool
+        - independentLevels bool
+
+        - setColorization(opts *LoggerOptions) 
+        - log(name string, level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        - logPlain(t time.Time, name string, level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        - renderSlice(v reflect.Value) string
+        - logJSON(t time.Time, name string, level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        - jsonMapEntry(t time.Time, name string, level Level, msg string) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        - resetOutput(opts *LoggerOptions) error
+        - checkWriterIsFile() *os.File
+        - copy() *intLogger
+        - setColorization(opts *LoggerOptions) 
+
+        + Log(level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        + Debug(msg string, args ...<font color=blue>interface</font>{}) 
+        + Trace(msg string, args ...<font color=blue>interface</font>{}) 
+        + Info(msg string, args ...<font color=blue>interface</font>{}) 
+        + Warn(msg string, args ...<font color=blue>interface</font>{}) 
+        + Error(msg string, args ...<font color=blue>interface</font>{}) 
+        + IsTrace() bool
+        + IsDebug() bool
+        + IsInfo() bool
+        + IsWarn() bool
+        + IsError() bool
+        + With(args ...<font color=blue>interface</font>{}) Logger
+        + Named(name string) Logger
+        + ResetNamed(name string) Logger
+        + ResetOutput(opts *LoggerOptions) error
+        + ResetOutputWithFlush(opts *LoggerOptions, flushable Flushable) error
+        + SetLevel(level Level) 
+        + StandardLogger(opts *StandardLoggerOptions) *log.Logger
+        + StandardWriter(opts *StandardLoggerOptions) io.Writer
+        + Accept(name string, level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        + ImpliedArgs() []<font color=blue>interface</font>{}
+        + Name() string
+
+    }
+    class interceptLogger << (S,Aquamarine) >> {
+        - mu *sync.Mutex
+        - sinkCount *int32
+
+        + Sinks <font color=blue>map</font>[SinkAdapter]<font color=blue>struct</font>{}
+
+        - log(level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        - retrieveImplied(args ...<font color=blue>interface</font>{}) []<font color=blue>interface</font>{}
+
+        + Log(level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        + Trace(msg string, args ...<font color=blue>interface</font>{}) 
+        + Debug(msg string, args ...<font color=blue>interface</font>{}) 
+        + Info(msg string, args ...<font color=blue>interface</font>{}) 
+        + Warn(msg string, args ...<font color=blue>interface</font>{}) 
+        + Error(msg string, args ...<font color=blue>interface</font>{}) 
+        + Named(name string) Logger
+        + ResetNamed(name string) Logger
+        + NamedIntercept(name string) InterceptLogger
+        + ResetNamedIntercept(name string) InterceptLogger
+        + With(args ...<font color=blue>interface</font>{}) Logger
+        + RegisterSink(sink SinkAdapter) 
+        + DeregisterSink(sink SinkAdapter) 
+        + StandardLoggerIntercept(opts *StandardLoggerOptions) *log.Logger
+        + StandardLogger(opts *StandardLoggerOptions) *log.Logger
+        + StandardWriterIntercept(opts *StandardLoggerOptions) io.Writer
+        + StandardWriter(opts *StandardLoggerOptions) io.Writer
+        + ResetOutput(opts *LoggerOptions) error
+        + ResetOutputWithFlush(opts *LoggerOptions, flushable Flushable) error
+
+    }
+    class logWriter << (S,Aquamarine) >> {
+        - l *log.Logger
+
+        + Write(b []byte) (int, error)
+
+    }
+    class nullLogger << (S,Aquamarine) >> {
+        + Log(level Level, msg string, args ...<font color=blue>interface</font>{}) 
+        + Trace(msg string, args ...<font color=blue>interface</font>{}) 
+        + Debug(msg string, args ...<font color=blue>interface</font>{}) 
+        + Info(msg string, args ...<font color=blue>interface</font>{}) 
+        + Warn(msg string, args ...<font color=blue>interface</font>{}) 
+        + Error(msg string, args ...<font color=blue>interface</font>{}) 
+        + IsTrace() bool
+        + IsDebug() bool
+        + IsInfo() bool
+        + IsWarn() bool
+        + IsError() bool
+        + ImpliedArgs() []<font color=blue>interface</font>{}
+        + With(args ...<font color=blue>interface</font>{}) Logger
+        + Name() string
+        + Named(name string) Logger
+        + ResetNamed(name string) Logger
+        + SetLevel(level Level) 
+        + StandardLogger(opts *StandardLoggerOptions) *log.Logger
+        + StandardWriter(opts *StandardLoggerOptions) io.Writer
+
+    }
+    class programCounters << (S,Aquamarine) >> {
+        - pcs []uintptr
+
+    }
+    class stdlogAdapter << (S,Aquamarine) >> {
+        - log Logger
+        - inferLevels bool
+        - forceLevel Level
+
+        - dispatch(str string, level Level) 
+        - pickLevel(str string) (Level, string)
+
+        + Write(data []byte) (int, error)
+
+    }
+    class writer << (S,Aquamarine) >> {
+        - b bytes.Buffer
+        - w io.Writer
+        - color ColorOption
+
+        + Flush(level Level) error
+        + Write(p []byte) (int, error)
+        + WriteByte(c byte) error
+        + WriteString(s string) (int, error)
+
+    }
+    class "[]<font color=blue>func</font>(Level, string, ...<font color=blue>interface</font>{}) bool" as fontcolorbluefuncfontLevelstringfontcolorblueinterfacefontbool {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+"hclog.Logger" *-- "hclog.InterceptLogger"
+"hclog.Logger" *-- "hclog.interceptLogger"
+
+"hclog.LevelWriter" <|-- "hclog.LeveledWriter"
+"hclog.Locker" <|-- "hclog.NoopLocker"
+"hclog.Logger" <|-- "hclog.intLogger"
+"hclog.OutputResettable" <|-- "hclog.intLogger"
+"hclog.SinkAdapter" <|-- "hclog.intLogger"
+"hclog.InterceptLogger" <|-- "hclog.interceptLogger"
+"hclog.OutputResettable" <|-- "hclog.interceptLogger"
+"hclog.Logger" <|-- "hclog.nullLogger"
+
+"__builtin__.int" #.. "hclog.Binary"
+"__builtin__.int" #.. "hclog.Hex"
+"__builtin__.int" #.. "hclog.Octal"
+"__builtin__.int32" #.. "hclog.Level"
+"__builtin__.string" #.. "hclog.CapturedStacktrace"
+"__builtin__.string" #.. "hclog.ExcludeByPrefix"
+"__builtin__.uint8" #.. "hclog.ColorOption"
+"hclog.fontcolorbluefuncfontLevelstringfontcolorblueinterfacefontbool" #.. "hclog.ExcludeFuncs"
+"hclog.[]<font color=blue>interface</font>{}" #.. "hclog.Format"
+@enduml
